@@ -1,0 +1,32 @@
+---
+hostname: leaf1
+os: eos
+port: 12443
+host: 127.0.0.1
+router_id: "10.0.1.1"
+asn: 131082
+
+loopback:
+  - name: "lo0"
+    ip_address: "10.0.1.1/32"
+    description: ""
+
+interfaces:
+  - name: "Et1"
+    ip_address: "10.11.0.2/30"
+    description: "to spine1"
+  - name: "Et2"
+    ip_address: "10.21.0.2/30"
+    description: "to spine2"
+  - name: "Et3"
+    ip_address: "10.100.0.1/24"
+    description: "to base1"
+
+
+bgp_neighbors:
+  - name: "spine1"
+    ip: 10.11.0.1
+    asn: 65546
+  - name: "spine2"
+    ip: 10.21.0.1
+    asn: 65556

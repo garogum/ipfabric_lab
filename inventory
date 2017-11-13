@@ -1,0 +1,20 @@
+[spine]
+spine1 port=12221
+spine2 port=12222
+
+[leaf]
+leaf1 port=12443 ssh_port=12201
+leaf2 port=12223 os=junos user=root password=Juniper host=127.0.0.1
+leaf3 port=12445 ssh_port=12203
+
+[spine:vars]
+os=junos
+host=127.0.0.1
+user=root
+password=Juniper
+
+[leaf:vars]
+os=eos
+host=127.0.0.1
+user=vagrant
+password=vagrant

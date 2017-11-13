@@ -1,0 +1,28 @@
+---
+- name: IP Fabric lab
+  connection: local
+  hosts: all
+  gather_facts: no
+
+  vars:
+   config_dir: "{{ playbook_dir }}/configs"
+   host_config_dir: "{{ config_dir }}/{{ inventory_hostname }}"
+   commit_changes: True
+
+  pre_tasks:
+  - name: Prep host config directories
+    file:
+      path: "{{ host_config_dir }}"
+      state: directory
+  - name: Prep backups, diffs directories  
+    file:
+      path: "{{ playbook_dir }}/{{ item }}"
+      state: directory
+    with_items:
+        - backups
+        - diffs
+
+  roles:
+  - napalm
+  - baseconfig
+  - ipinfra

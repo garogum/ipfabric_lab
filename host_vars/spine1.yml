@@ -1,0 +1,33 @@
+---
+hostname: spine1
+os: junos
+port: 12221
+host: 127.0.0.1
+router_id: "10.0.0.1"
+asn: 65546
+
+
+interfaces:
+  - name: "lo0"
+    ip_address: "10.0.0.1/32"
+    description: ""
+  - name: "ge-0/0/1"
+    ip_address: "10.11.0.1/30"
+    description: "to leaf1"
+  - name: "ge-0/0/2"
+    ip_address: "10.12.0.1/30"
+    description: "to leaf2"
+  - name: "ge-0/0/3"
+    ip_address: "10.13.0.1/30"
+    description: "to leaf3"
+
+bgp_neighbors:
+  - name: "leaf1"
+    ip: 10.11.0.2
+    asn: 131082
+  - name: "leaf2"
+    ip: 10.12.0.2
+    asn: 131092
+  - name: "leaf3"
+    ip: 10.13.0.2
+    asn: 131102

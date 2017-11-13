@@ -1,0 +1,32 @@
+ipv6 unicast-routing
+
+{% for interface in loopback %}
+default interface {{ interface.name }}
+interface {{ interface.name }}
+        ip address {{ interface.ip_address }}
+        description "{{ interface.description }}"
+{% endfor %}
+
+{% for interface in interfaces %}
+default interface {{ interface.name }}
+interface {{ interface.name }}
+        no switchport
+        ip address {{ interface.ip_address }}
+        description "{{ interface.description }}"
+{% endfor %}
+
+ip prefix-list loopbacks-server-gw
+   seq 10 permit 10.0.1.1/32
+   seq 20 permit 10.0.1.2/32
+   seq 30 permit 10.0.1.3/32
+   seq 40 permit 10.100.0.0/24
+   seq 50 permit 10.200.0.0/24
+
+route-map loopbacks-server-gw permit 10
+   match ip address prefix-list loopbacks-server-gw
+
+router bgp {{ asn }}
+        redistribute connected route-map loopbacks-server-gw
+{% for neighbor in bgp_neighbors %}
+        neighbor {{ neighbor.ip }} remote-as {{ neighbor.asn }}
+{% endfor %}

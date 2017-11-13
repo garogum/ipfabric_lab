@@ -1,0 +1,108 @@
+{% for interface in interfaces %}
+
+interfaces {
+  replace:
+  {{ interface.name }}{
+    unit 0 {
+      family inet {
+        address {{ interface.ip_address }}
+      }
+      description "{{ interface.description }}"
+    }
+  }
+}
+
+{% if interface.name != "lo0" %}
+protocols {
+  lldp {
+    interface {{ interface.name }}
+  }
+}
+{% endif %}
+{% endfor %}
+
+
+policy-options {
+    prefix-list server-gw {
+      10.100.0.0/24;
+      10.200.0.0/24;
+    }
+    prefix-list loopbacks {
+      10.0.0.1/32;
+      10.0.0.2/32;
+      10.0.1.1/32;
+      10.0.1.2/32;
+      10.0.1.3/32;
+    }
+    policy-statement PFE-LAB {
+      then {
+        load-balance per-packet
+      }
+    }
+    policy-statement bgp-fabric-out {
+      term loopbacks {
+        from {
+          protocol direct
+          prefix-list loopbacks
+        }
+        then {
+          next-hop self;
+          accept;
+        }
+      }
+      term server-gw {
+        from {
+          protocol direct
+          prefix-list server-gw
+        }
+        then {
+          next-hop self;
+          accept;
+        }
+      }
+    }
+    policy-statement bgp-fabric-in {
+        term loopbacks {
+          from {
+            prefix-list loopbacks
+          }
+          then accept
+        }
+        term server-gw {
+          from {
+            prefix-list server-gw
+          }
+          then accept
+        }
+        term reject {
+            then reject
+        }
+    }
+}
+
+protocols {
+  bgp {
+    log-updown
+    mtu-discovery
+    import bgp-fabric-in
+    export bgp-fabric-out
+    group FABRIC {
+      type external
+{% for neighbor in bgp_neighbors %}
+      neighbor {{ neighbor.ip }} {
+        peer-as {{ neighbor.asn }}
+        description {{ neighbor.name }}
+      }
+{% endfor %}
+       multipath multiple-as
+    }
+  }
+}
+
+routing-options {
+  router-id {{ router_id }};
+  autonomous-system {{ asn }};
+  forwarding-table {
+    export PFE-LAB;
+  }
+}

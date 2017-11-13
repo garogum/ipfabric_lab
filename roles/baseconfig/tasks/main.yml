@@ -1,0 +1,21 @@
+- name: Generate base config
+  template:
+    src: "{{ os }}/baseconfig.j2"
+    dest: "{{ host_config_dir }}/baseconfig.conf"
+  changed_when: False
+
+- name: Apply base config
+  napalm_install_config:
+    hostname: "{{ host }}"
+    username: "{{ user }}"
+    password: "{{ password }}"
+    optional_args:
+     port: "{{ port }}"
+    dev_os: "{{ os }}"
+    config_file: "{{ host_config_dir }}/baseconfig.conf"
+    commit_changes: "{{ commit_changes }}"
+    replace_config: false
+    get_diffs: True
+    diff_file: "{{ playbook_dir }}/diffs/{{ inventory_hostname }}_baseconfig_diff"
+    archive_file: "backups/{{ inventory_hostname }}_napalm_backup"
+  tags: [print_action]
